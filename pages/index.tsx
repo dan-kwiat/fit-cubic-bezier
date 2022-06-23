@@ -23,7 +23,8 @@ function BallRolling() {
     </svg>
   )
 }
-const Home: NextPage = () => {
+
+const FrameOfReference = ({ zoom }: { zoom?: boolean }) => {
   const [restart, setRestart] = useState(false)
 
   function roll() {
@@ -36,12 +37,43 @@ const Home: NextPage = () => {
     }
   }, [restart])
 
-  let pos =
-    "transition-transform translate-x-full rotate-[114deg] duration-[1500ms] ease-linear" //rotate-114
+  let ballPos =
+    "transition-transform translate-x-full rotate-[114deg] duration-[1500ms] ease-linear"
   if (restart) {
-    pos = "translate-x-0"
+    ballPos = "translate-x-0"
   }
 
+  let zoomPos = "scale-100"
+
+  if (zoom && !restart) {
+    zoomPos =
+      "transition-transform duration-[1500ms] ease-in origin-bottom-right scale-[1.5]"
+  }
+
+  return (
+    <button
+      className="block w-full max-w-xl mx-auto bg-purple-50 rounded-lg"
+      onClick={() => roll()}
+    >
+      <div className="relative aspect-video overflow-hidden">
+        <div
+          className={`border-b-4 border-r-4 border-purple-900 absolute inset-x-0 bottom-0 h-3/4 ${zoomPos}`}
+        >
+          <div
+            className={`absolute bottom-0 left-0 w-1/3 text-purple-500 ${ballPos}`}
+          >
+            <BallRolling />
+          </div>
+        </div>
+        <div className="absolute top-0 left-0 bg-purple-100 rounded-br-3xl">
+          <PlayIcon className="w-24 h-24 text-purple-500" />
+        </div>
+      </div>
+    </button>
+  )
+}
+
+const Home: NextPage = () => {
   return (
     <div className={styles.container}>
       <Head>
@@ -62,16 +94,8 @@ const Home: NextPage = () => {
         </p>
 
         <h2>Let's get the ball rolling...</h2>
-        <div>
-          <button onClick={() => roll()}>
-            <PlayIcon className="w-24 h-24 text-purple-500" />
-          </button>
-          <div className="border-b border-r border-black w-full">
-            <div className={`w-1/2 text-purple-500 ${pos}`}>
-              <BallRolling />
-            </div>
-          </div>
-        </div>
+        <FrameOfReference />
+        <FrameOfReference zoom />
       </main>
 
       <footer className={styles.footer}>Powered by Deno</footer>
