@@ -1,5 +1,7 @@
 # Fit Cubic Bezier
 
+Live Demo: https://fit-cubic-bezier.vercel.app
+
 This is a tool for finding the best-fit parameters `p0, p1, p2, p3` of a cubic
 Bezier function to estimate a target function `f(x)` of your choice within a
 particular range `[xMin, xMax]`.
