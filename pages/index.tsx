@@ -34,6 +34,113 @@ function Panel({ children }: { children: ReactNode }) {
   )
 }
 
+function PanelRange({
+  xMin,
+  xMax,
+  yMin,
+  yMax,
+  setXRange,
+  onRefit,
+}: {
+  xMin: number
+  xMax: number
+  yMin: number
+  yMax: number
+  setXRange: Dispatch<SetStateAction<[number, number]>>
+  onRefit: () => void
+}) {
+  return (
+    <Panel>
+      <h3 className="font-bold">Range</h3>
+      <p className="text-xs">
+        <code className="italic">yMin</code> &{" "}
+        <code className="italic">yMax</code> are set automatically by the value
+        of <code className="italic">bezierTarget</code> at{" "}
+        <code className="italic">xMin</code> &{" "}
+        <code className="italic">xMax</code> respectively.
+      </p>
+      <div className="flex items-center space-x-4">
+        <div>
+          <label
+            htmlFor="xMin"
+            className="block text-sm font-medium text-gray-700"
+          >
+            xMin
+          </label>
+          <div className="mt-1">
+            <input
+              step={0.1}
+              type="number"
+              name="xMin"
+              id="xMin"
+              className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+              placeholder="0"
+              value={xMin.toString()}
+              onChange={(e) => {
+                const val = e.target.value
+                setXRange((prev) => [parseFloat(val), prev[1]])
+              }}
+            />
+          </div>
+        </div>
+        <div className="w-1/2">
+          <label
+            htmlFor="p1y"
+            className="block text-sm font-medium text-gray-700"
+          >
+            yMin
+          </label>
+          <div className="mt-1">
+            <span>{round(yMin, 2)}</span>
+          </div>
+        </div>
+      </div>
+      <div className="flex items-center space-x-4">
+        <div>
+          <label
+            htmlFor="xMax"
+            className="block text-sm font-medium text-gray-700"
+          >
+            xMax
+          </label>
+          <div className="mt-1">
+            <input
+              step={0.1}
+              type="number"
+              name="xMax"
+              id="xMax"
+              className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+              placeholder="0.25"
+              value={xMax.toString()}
+              onChange={(e) => {
+                const val = e.target.value
+                setXRange((prev) => [prev[0], parseFloat(val)])
+              }}
+            />
+          </div>
+        </div>
+        <div className="w-1/2">
+          <label
+            htmlFor="p2y"
+            className="block text-sm font-medium text-gray-700"
+          >
+            yMax
+          </label>
+          <div className="mt-1">
+            <span>{round(yMax, 2)}</span>
+          </div>
+        </div>
+      </div>
+      <button
+        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        onClick={() => onRefit()}
+      >
+        Refit
+      </button>
+    </Panel>
+  )
+}
+
 function PanelTangentInputs({
   p1,
   p2,
@@ -240,94 +347,14 @@ function FitBezier({ res }: { res: number }) {
         </li>
       </ul>
       <div className="mt-12 grid grid-cols-3 gap-x-2">
-        <Panel>
-          <h3 className="font-bold">Range</h3>
-          <p className="text-xs">
-            <code className="italic">yMin</code> &{" "}
-            <code className="italic">yMax</code> are set automatically by the
-            value of <code className="italic">bezierTarget</code> at{" "}
-            <code className="italic">xMin</code> &{" "}
-            <code className="italic">xMax</code> respectively.
-          </p>
-          <div className="flex items-center space-x-4">
-            <div>
-              <label
-                htmlFor="xMin"
-                className="block text-sm font-medium text-gray-700"
-              >
-                xMin
-              </label>
-              <div className="mt-1">
-                <input
-                  step={0.1}
-                  type="number"
-                  name="xMin"
-                  id="xMin"
-                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                  placeholder="0"
-                  value={xMin.toString()}
-                  onChange={(e) => {
-                    const val = e.target.value
-                    setXRange((prev) => [parseFloat(val), prev[1]])
-                  }}
-                />
-              </div>
-            </div>
-            <div className="w-1/2">
-              <label
-                htmlFor="p1y"
-                className="block text-sm font-medium text-gray-700"
-              >
-                yMin
-              </label>
-              <div className="mt-1">
-                <span>{round(p0[1], 2)}</span>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center space-x-4">
-            <div>
-              <label
-                htmlFor="xMax"
-                className="block text-sm font-medium text-gray-700"
-              >
-                xMax
-              </label>
-              <div className="mt-1">
-                <input
-                  step={0.1}
-                  type="number"
-                  name="xMax"
-                  id="xMax"
-                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                  placeholder="0.25"
-                  value={xMax.toString()}
-                  onChange={(e) => {
-                    const val = e.target.value
-                    setXRange((prev) => [prev[0], parseFloat(val)])
-                  }}
-                />
-              </div>
-            </div>
-            <div className="w-1/2">
-              <label
-                htmlFor="p2y"
-                className="block text-sm font-medium text-gray-700"
-              >
-                yMax
-              </label>
-              <div className="mt-1">
-                <span>{round(p3[1], 2)}</span>
-              </div>
-            </div>
-          </div>
-          <button
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            onClick={() => update()}
-          >
-            Refit
-          </button>
-        </Panel>
+        <PanelRange
+          onRefit={update}
+          xMin={xMin}
+          xMax={xMax}
+          yMin={p0[1]}
+          yMax={p3[1]}
+          setXRange={setXRange}
+        />
         <PanelTangentInputs
           p1={p1}
           p2={p2}
