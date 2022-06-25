@@ -330,7 +330,7 @@ function FitBezier({ res }: { res: number }) {
               or whatever function you want to fit
             </li>
             <li className="list-disc list-inside">
-              Set the X <span className="font-bold">Range</span> you're
+              Set the X <span className="font-bold">Range</span> you{"'"}re
               interested in in the panel on the right
             </li>
             <li className="list-disc list-inside">
@@ -342,7 +342,7 @@ function FitBezier({ res }: { res: number }) {
               target function
             </li>
             <li className="list-disc list-inside">
-              When you're happy, copy the{" "}
+              When you{"'"}re happy, copy the{" "}
               <span className="font-bold">Results</span> coordinates at the
               bottom
             </li>
