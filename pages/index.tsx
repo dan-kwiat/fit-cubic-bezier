@@ -28,9 +28,7 @@ function defaultTangentPoints({
 
 function Panel({ children }: { children: ReactNode }) {
   return (
-    <div className="max-w-xs space-y-2 border shadow rounded-lg p-4">
-      {children}
-    </div>
+    <div className="space-y-2 border shadow rounded-lg p-4">{children}</div>
   )
 }
 
@@ -51,7 +49,7 @@ function PanelRange({
 }) {
   return (
     <Panel>
-      <h3 className="font-bold">Range</h3>
+      <h3 className="font-bold text-lg">Range</h3>
       <p className="text-xs">
         <code className="italic">yMin</code> &{" "}
         <code className="italic">yMax</code> are set automatically by the value
@@ -165,7 +163,7 @@ function PanelTangentInputs({
         <div>
           <label
             htmlFor="p1x"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-blue-700"
           >
             P1x
           </label>
@@ -188,7 +186,7 @@ function PanelTangentInputs({
         <div>
           <label
             htmlFor="p1y"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-blue-700"
           >
             P1y
           </label>
@@ -213,7 +211,7 @@ function PanelTangentInputs({
         <div>
           <label
             htmlFor="p2x"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-green-700"
           >
             P2x
           </label>
@@ -236,7 +234,7 @@ function PanelTangentInputs({
         <div>
           <label
             htmlFor="p2y"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-green-700"
           >
             P2y
           </label>
@@ -316,37 +314,40 @@ function FitBezier({ res }: { res: number }) {
   const yRange = p3[1] - p0[1]
 
   return (
-    <div>
-      <h1 className="mt-12 text-4xl font-bold">
-        Fitting <code>`{functionString}`</code>
+    <div className="py-24">
+      <h1 className="text-4xl font-bold text-center">
+        Fitting <code className="text-indigo-600">`{functionString}`</code>
       </h1>
-      <h3 className="mt-12 text-lg font-bold">Instructions</h3>
-      <ul className="text-gray-500">
-        <li className="list-disc list-inside">
-          Open your browser console and type{" "}
-          <code className="font-semibold">
-            {"window.bezierTarget = x => 2*Math.pow(x, 4)"}
-          </code>{" "}
-          or whatever function you want to fit
-        </li>
-        <li className="list-disc list-inside">
-          Set the X <span className="font-bold">Range</span> you're interested
-          in below
-        </li>
-        <li className="list-disc list-inside">
-          Click <span className="font-bold">Refit</span> below
-        </li>
-        <li className="list-disc list-inside">
-          Adjust the <span className="font-bold">Tangent Point</span>{" "}
-          coordinates below so the black Bezier curve approaches the red target
-          function
-        </li>
-        <li className="list-disc list-inside">
-          When you're happy, copy the <span className="font-bold">Results</span>{" "}
-          coordinates
-        </li>
-      </ul>
-      <div className="mt-12 grid grid-cols-3 gap-x-2">
+      <div className="mt-12 flex space-x-12">
+        <Panel>
+          <h3 className="text-lg font-bold">Instructions</h3>
+          <ul className="text-gray-500">
+            <li className="list-disc list-inside">
+              Open your browser console and type{" "}
+              <code className="font-semibold">
+                {"window.bezierTarget = x => 2*Math.pow(x, 4)"}
+              </code>{" "}
+              or whatever function you want to fit
+            </li>
+            <li className="list-disc list-inside">
+              Set the X <span className="font-bold">Range</span> you're
+              interested in in the panel on the right
+            </li>
+            <li className="list-disc list-inside">
+              Click <span className="font-bold">Refit</span>
+            </li>
+            <li className="list-disc list-inside">
+              Adjust the <span className="font-bold">Tangent Point</span>{" "}
+              coordinates below so the black Bezier curve approaches the red
+              target function
+            </li>
+            <li className="list-disc list-inside">
+              When you're happy, copy the{" "}
+              <span className="font-bold">Results</span> coordinates at the
+              bottom
+            </li>
+          </ul>
+        </Panel>
         <PanelRange
           onRefit={update}
           xMin={xMin}
@@ -355,6 +356,8 @@ function FitBezier({ res }: { res: number }) {
           yMax={p3[1]}
           setXRange={setXRange}
         />
+      </div>
+      <div className="flex items-center justify-center space-x-12">
         <PanelTangentInputs
           p1={p1}
           p2={p2}
@@ -363,22 +366,110 @@ function FitBezier({ res }: { res: number }) {
           xRange={xRange}
           yRange={yRange}
         />
+        <div className="mt-24 aspect-square max-w-xl w-full relative bg-gray-100 mx-auto">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+            {/* Target Function */}
+            {coordsTarget.map(([x, y], i) => {
+              if (i === coordsTarget.length - 1) {
+                return
+              }
+              const point = normalisePoint({
+                p: [x, y],
+                p0,
+                p3,
+              })
+              const nextPoint = normalisePoint({
+                p: coordsTarget[i + 1],
+                p0,
+                p3,
+              })
+              return (
+                <line
+                  key={`target-${x}-${y}`}
+                  x1={100 * point[0]}
+                  y1={100 * (1 - point[1])}
+                  x2={100 * nextPoint[0]}
+                  y2={100 * (1 - nextPoint[1])}
+                  stroke="red"
+                  strokeWidth={0.5}
+                />
+              )
+            })}
+            {/* Cubic Bezier Curve */}
+            {coordsBezier.map(([x, y], i) => {
+              if (i === coordsBezier.length - 1) {
+                return
+              }
+              const point = normalisePoint({
+                p: [x, y],
+                p0,
+                p3,
+              })
+              const nextPoint = normalisePoint({
+                p: coordsBezier[i + 1],
+                p0,
+                p3,
+              })
+              return (
+                <line
+                  key={`bezier-${x}-${y}`}
+                  x1={100 * point[0]}
+                  y1={100 * (1 - point[1])}
+                  x2={100 * nextPoint[0]}
+                  y2={100 * (1 - nextPoint[1])}
+                  stroke="black"
+                  strokeWidth={0.5}
+                />
+              )
+            })}
+            {/* Tangent Points */}
+            <circle
+              cx={100 * p1Normal[0]}
+              cy={100 - 100 * p1Normal[1]}
+              r="2"
+              fill="blue"
+            />
+            <circle
+              cx={100 * p2Normal[0]}
+              cy={100 - 100 * p2Normal[1]}
+              r="2"
+              fill="green"
+            />
+          </svg>
+          {/* Axis Limits */}
+          <div className="absolute bottom-0 left-0 translate-y-full">
+            {round(p0[0], 2)}
+          </div>
+          <div className="absolute bottom-0 right-0 translate-y-full">
+            {round(p3[0], 2)}
+          </div>
+          <div className="absolute left-0 bottom-0 -translate-x-full">
+            {round(p0[1], 2)}
+          </div>
+          <div className="absolute left-0 top-0 -translate-x-full">
+            {round(p3[1], 2)}
+          </div>
+        </div>
+      </div>
+      <div className="mt-24 flex space-x-12">
         <Panel>
-          <h3 className="font-bold">Results</h3>
-          <code className="text-xs">
-            <div>
-              P0=[{round(p0[0], 2)}, {round(p0[1], 2)}]
-            </div>
-            <div>
-              P1=[{round(p1[0], 2)}, {round(p1[1], 2)}]
-            </div>
-            <div>
-              P2=[{round(p2[0], 2)}, {round(p2[1], 2)}]
-            </div>
-            <div>
-              P3=[{round(p3[0], 2)}, {round(p3[1], 2)}]
-            </div>
-          </code>
+          <h3 className="font-bold text-lg">Results</h3>
+          <div className="mt-4">
+            <code className="text-xs">
+              <div>
+                P0=[{round(p0[0], 2)}, {round(p0[1], 2)}]
+              </div>
+              <div>
+                P1=[{round(p1[0], 2)}, {round(p1[1], 2)}]
+              </div>
+              <div>
+                P2=[{round(p2[0], 2)}, {round(p2[1], 2)}]
+              </div>
+              <div>
+                P3=[{round(p3[0], 2)}, {round(p3[1], 2)}]
+              </div>
+            </code>
+          </div>
           <p className="text-xs">CSS-friendly output:</p>
           <code className="text-xs">{cssCubicBezier({ p0, p1, p2, p3 })}</code>
           <p className="text-xs">
@@ -386,103 +477,25 @@ function FitBezier({ res }: { res: number }) {
             0], [1, 1]&#125;)
           </p>
         </Panel>
+        <Panel>
+          <h3 className="font-bold text-lg">Caveats</h3>
+          <ul className="text-gray-500">
+            <li className="list-disc list-inside">
+              <span className="font-bold">Refit</span> is not supposed to find
+              the best-fit curve. It gives a starting point which you can tweak
+              towards a better fit.
+            </li>
+            <li className="list-disc list-inside">
+              Assumes <code>bezierTarget</code> is monotonically increasing
+              between <code>xMin</code> and <code>xMax</code>
+            </li>
+            <li className="list-disc list-inside">
+              There is some rounding to 2 d.p. so you max experience strange
+              things if the range of your plot is very small
+            </li>
+          </ul>
+        </Panel>
       </div>
-      <div className="mt-12 aspect-square max-w-xl relative bg-gray-100 mx-auto">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-          {coordsTarget.map(([x, y], i) => {
-            if (i === coordsTarget.length - 1) {
-              return
-            }
-            const point = normalisePoint({
-              p: [x, y],
-              p0,
-              p3,
-            })
-            const nextPoint = normalisePoint({
-              p: coordsTarget[i + 1],
-              p0,
-              p3,
-            })
-            return (
-              <line
-                key={`target-${x}-${y}`}
-                x1={100 * point[0]}
-                y1={100 * (1 - point[1])}
-                x2={100 * nextPoint[0]}
-                y2={100 * (1 - nextPoint[1])}
-                stroke="red"
-                strokeWidth={0.5}
-              />
-            )
-          })}
-          {coordsBezier.map(([x, y], i) => {
-            if (i === coordsBezier.length - 1) {
-              return
-            }
-            const point = normalisePoint({
-              p: [x, y],
-              p0,
-              p3,
-            })
-            const nextPoint = normalisePoint({
-              p: coordsBezier[i + 1],
-              p0,
-              p3,
-            })
-            return (
-              <line
-                key={`bezier-${x}-${y}`}
-                x1={100 * point[0]}
-                y1={100 * (1 - point[1])}
-                x2={100 * nextPoint[0]}
-                y2={100 * (1 - nextPoint[1])}
-                stroke="black"
-                strokeWidth={0.5}
-              />
-            )
-          })}
-          <circle
-            cx={100 * p1Normal[0]}
-            cy={100 - 100 * p1Normal[1]}
-            r="2"
-            fill="blue"
-          />
-          <circle
-            cx={100 * p2Normal[0]}
-            cy={100 - 100 * p2Normal[1]}
-            r="2"
-            fill="green"
-          />
-        </svg>
-        <div className="absolute bottom-0 left-0 translate-y-full">
-          {round(p0[0], 2)}
-        </div>
-        <div className="absolute bottom-0 right-0 translate-y-full">
-          {round(p3[0], 2)}
-        </div>
-        <div className="absolute left-0 bottom-0 -translate-x-full">
-          {round(p0[1], 2)}
-        </div>
-        <div className="absolute left-0 top-0 -translate-x-full">
-          {round(p3[1], 2)}
-        </div>
-      </div>
-      <h3 className="mt-12 text-lg font-bold">Caveats</h3>
-      <ul className="text-gray-500">
-        <li className="list-disc list-inside">
-          <span className="font-bold">Refit</span> is not supposed to find the
-          best-fit curve. It gives a starting point which you can tweak towards
-          a better fit.
-        </li>
-        <li className="list-disc list-inside">
-          Assumes <code>bezierTarget</code> is monotonically increasing between{" "}
-          <code>xMin</code> and <code>xMax</code>
-        </li>
-        <li className="list-disc list-inside">
-          There is some rounding to 2 d.p. so you max experience strange things
-          if the range of your plot is very small
-        </li>
-      </ul>
     </div>
   )
 }
