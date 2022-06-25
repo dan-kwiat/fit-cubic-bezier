@@ -1,6 +1,6 @@
 import type { NextPage } from "next"
 import Head from "next/head"
-import { useEffect, useState } from "react"
+import { Dispatch, ReactNode, SetStateAction, useEffect, useState } from "react"
 import {
   bezierCoord,
   cssCubicBezier,
@@ -24,6 +24,134 @@ function defaultTangentPoints({
     p1: [p1X, round(bezierTarget(p1X), 2)],
     p2: [p2X, round(bezierTarget(p2X), 2)],
   }
+}
+
+function Panel({ children }: { children: ReactNode }) {
+  return (
+    <div className="max-w-xs space-y-2 border shadow rounded-lg p-4">
+      {children}
+    </div>
+  )
+}
+
+function PanelTangentInputs({
+  p1,
+  p2,
+  setp1,
+  setp2,
+  xRange,
+  yRange,
+}: {
+  p1: Point
+  p2: Point
+  setp1: Dispatch<SetStateAction<Point>>
+  setp2: Dispatch<SetStateAction<Point>>
+  xRange: number
+  yRange: number
+}) {
+  const stepX = round(0.1 * xRange, 2)
+  const stepY = round(0.1 * yRange, 2)
+  return (
+    <Panel>
+      <h3 className="font-bold">Tangent Points</h3>
+      <div className="flex items-center space-x-4">
+        <div>
+          <label
+            htmlFor="p1x"
+            className="block text-sm font-medium text-gray-700"
+          >
+            P1x
+          </label>
+          <div className="mt-1">
+            <input
+              step={stepX}
+              type="number"
+              name="p1x"
+              id="p1x"
+              className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+              placeholder="0.25"
+              value={p1[0].toString()}
+              onChange={(e) => {
+                const val = e.target.value
+                setp1((prev) => [parseFloat(val), prev[1]])
+              }}
+            />
+          </div>
+        </div>
+        <div>
+          <label
+            htmlFor="p1y"
+            className="block text-sm font-medium text-gray-700"
+          >
+            P1y
+          </label>
+          <div className="mt-1">
+            <input
+              step={stepY}
+              type="number"
+              name="p1y"
+              id="p1y"
+              className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+              placeholder="0.3"
+              value={p1[1].toString()}
+              onChange={(e) => {
+                const val = e.target.value
+                setp1((prev) => [prev[0], parseFloat(val)])
+              }}
+            />
+          </div>
+        </div>
+      </div>
+      <div className="flex items-center space-x-4">
+        <div>
+          <label
+            htmlFor="p2x"
+            className="block text-sm font-medium text-gray-700"
+          >
+            P2x
+          </label>
+          <div className="mt-1">
+            <input
+              step={stepX}
+              type="number"
+              name="p2x"
+              id="p2x"
+              className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+              placeholder="0.25"
+              value={p2[0].toString()}
+              onChange={(e) => {
+                const val = e.target.value
+                setp2((prev) => [parseFloat(val), prev[1]])
+              }}
+            />
+          </div>
+        </div>
+        <div>
+          <label
+            htmlFor="p2y"
+            className="block text-sm font-medium text-gray-700"
+          >
+            P2y
+          </label>
+          <div className="mt-1">
+            <input
+              step={stepY}
+              type="number"
+              name="p2y"
+              id="p2y"
+              className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+              placeholder="0.25"
+              value={p2[1].toString()}
+              onChange={(e) => {
+                const val = e.target.value
+                setp2((prev) => [prev[0], parseFloat(val)])
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    </Panel>
+  )
 }
 
 function FitBezier({ res }: { res: number }) {
@@ -77,8 +205,8 @@ function FitBezier({ res }: { res: number }) {
 
   const p1Normal = normalisePoint({ p: p1, p0, p3 })
   const p2Normal = normalisePoint({ p: p2, p0, p3 })
-  const stepX = round(0.1 * (p3[0] - p0[0]), 2)
-  const stepY = round(0.1 * (p3[1] - p0[1]), 2)
+  const xRange = p3[0] - p0[0]
+  const yRange = p3[1] - p0[1]
 
   return (
     <div>
@@ -112,7 +240,7 @@ function FitBezier({ res }: { res: number }) {
         </li>
       </ul>
       <div className="mt-12 grid grid-cols-3 gap-x-2">
-        <div className="max-w-xs space-y-2 border shadow rounded-lg p-4">
+        <Panel>
           <h3 className="font-bold">Range</h3>
           <p className="text-xs">
             <code className="italic">yMin</code> &{" "}
@@ -199,107 +327,16 @@ function FitBezier({ res }: { res: number }) {
           >
             Refit
           </button>
-        </div>
-        <div className="max-w-xs space-y-2 border shadow rounded-lg p-4">
-          <h3 className="font-bold">Tangent Points</h3>
-          <div className="flex items-center space-x-4">
-            <div>
-              <label
-                htmlFor="p1x"
-                className="block text-sm font-medium text-gray-700"
-              >
-                P1x
-              </label>
-              <div className="mt-1">
-                <input
-                  step={stepX}
-                  type="number"
-                  name="p1x"
-                  id="p1x"
-                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                  placeholder="0.25"
-                  value={p1[0].toString()}
-                  onChange={(e) => {
-                    const val = e.target.value
-                    setp1((prev) => [parseFloat(val), prev[1]])
-                  }}
-                />
-              </div>
-            </div>
-            <div>
-              <label
-                htmlFor="p1y"
-                className="block text-sm font-medium text-gray-700"
-              >
-                P1y
-              </label>
-              <div className="mt-1">
-                <input
-                  step={stepY}
-                  type="number"
-                  name="p1y"
-                  id="p1y"
-                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                  placeholder="0.3"
-                  value={p1[1].toString()}
-                  onChange={(e) => {
-                    const val = e.target.value
-                    setp1((prev) => [prev[0], parseFloat(val)])
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center space-x-4">
-            <div>
-              <label
-                htmlFor="p2x"
-                className="block text-sm font-medium text-gray-700"
-              >
-                P2x
-              </label>
-              <div className="mt-1">
-                <input
-                  step={stepX}
-                  type="number"
-                  name="p2x"
-                  id="p2x"
-                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                  placeholder="0.25"
-                  value={p2[0].toString()}
-                  onChange={(e) => {
-                    const val = e.target.value
-                    setp2((prev) => [parseFloat(val), prev[1]])
-                  }}
-                />
-              </div>
-            </div>
-            <div>
-              <label
-                htmlFor="p2y"
-                className="block text-sm font-medium text-gray-700"
-              >
-                P2y
-              </label>
-              <div className="mt-1">
-                <input
-                  step={stepY}
-                  type="number"
-                  name="p2y"
-                  id="p2y"
-                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                  placeholder="0.25"
-                  value={p2[1].toString()}
-                  onChange={(e) => {
-                    const val = e.target.value
-                    setp2((prev) => [prev[0], parseFloat(val)])
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="max-w-xs space-y-2 border shadow rounded-lg p-4">
+        </Panel>
+        <PanelTangentInputs
+          p1={p1}
+          p2={p2}
+          setp1={setp1}
+          setp2={setp2}
+          xRange={xRange}
+          yRange={yRange}
+        />
+        <Panel>
           <h3 className="font-bold">Results</h3>
           <code className="text-xs">
             <div>
@@ -321,7 +358,7 @@ function FitBezier({ res }: { res: number }) {
             (this is essentially the p1, p2 coords normalised to be in &#123;[0,
             0], [1, 1]&#125;)
           </p>
-        </div>
+        </Panel>
       </div>
       <div className="mt-12 aspect-square max-w-xl relative bg-gray-100 mx-auto">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
